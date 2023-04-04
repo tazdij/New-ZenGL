@@ -29,9 +29,6 @@ unit zgl_pasOpenGL;
 {$IfDef UNIX}
   {$DEFINE stdcall := cdecl}
 {$EndIf}
-{$IFDEF MACOSX}
-  {$LINKFRAMEWORK OpenGL}
-{$ENDIF}
 
 interface
 
@@ -46,6 +43,15 @@ uses
   Math,
   {$EndIf}
   zgl_gltypeconst;
+
+  {$IFDEF LINUX}
+const
+  libGL  = 'libGL.so.1';
+  {$ENDIF}
+  {$IFDEF WINDOWS}
+const
+  libGL  = 'opengl32.dll';
+  {$ENDIF}
 
 type
   GLDEBUGPROC = procedure(source: GLenum; _type: GLenum; id: GLuint; severity: GLenum; length: GLsizei; const _message: PGLchar; userParam: PGLvoid); stdcall;
@@ -799,15 +805,15 @@ var
 (*******************************************************************************
 *                             deprecated                                       *
 *******************************************************************************)
-{$IfDef USE_DEPRECATED}
+{$IF not defined(USE_GLCORE) or defined(USE_DEPRECATED)}
   procedure glAccum(op: GLenum; value: GLfloat); stdcall; external libGL;
 //  glAlphaFunc: procedure(func: GLenum; ref: GLclampf); stdcall; external libGL;
   function glAreTexturesResident(n: GLsizei; const textures: PGLuint; residences: PGLboolean): GLboolean; stdcall; external libGL;
 //  glArrayElement: procedure(i: GLint); stdcall; external libGL; // + EXT
 //  glBegin: procedure(mode: GLenum); stdcall; external libGL;
   procedure glBitmap (width, height: GLsizei; xorig, yorig: GLfloat; xmove, ymove: GLfloat; const bitmap: PGLubyte); stdcall; external libGL;
-  procedure glCallList(list: GLuint); stdcall; external libGL;
-  procedure glCallLists(n: GLsizei; atype: GLenum; const lists: Pointer); stdcall; external libGL;
+//  glCallList: procedure(list: GLuint); stdcall; external libGL;
+//  glCallLists: procedure(n: GLsizei; atype: GLenum; const lists: Pointer); stdcall; external libGL;
   procedure glClearAccum(red, green, blue, alpha: GLfloat); stdcall; external libGL;
   procedure glClearIndex(c: GLfloat); stdcall; external libGL;
   procedure glClipPlane(plane: GLenum; const equation: PGLdouble); stdcall; external libGL;
@@ -846,7 +852,7 @@ var
 //  glColorMaterial: procedure(face, mode: GLenum); stdcall; external libGL;
 //  glColorPointer: procedure(size: GLint; atype: GLenum; stride: GLsizei; const pointer: Pointer); stdcall; external libGL;
   procedure glCopyPixels(x, y: GLint; width, height: GLsizei; atype: GLenum); stdcall; external libGL;
-  procedure glDeleteLists(list: GLuint; range: GLsizei); stdcall; external libGL;
+//  glDeleteLists: procedure(list: GLuint; range: GLsizei); stdcall; external libGL;
 //  glDisableClientState: procedure(aarray: GLenum); stdcall; external libGL;
   procedure glDrawPixels(width, height: GLsizei; format, atype: GLenum; const pixels: Pointer); stdcall; external libGL;
   procedure glEdgeFlag(flag: GLboolean); stdcall; external libGL;
@@ -854,7 +860,7 @@ var
   procedure glEdgeFlagv(const flag: PGLboolean); stdcall; external libGL;
 //  glEnableClientState: procedure(aarray: GLenum); stdcall; external libGL;
 //  glEnd: procedure; stdcall; external libGL;
-  procedure glEndList; stdcall; external libGL;
+//  glEndList: procedure; stdcall; external libGL;
   procedure glEvalCoord1d(u: GLdouble); stdcall; external libGL;
   procedure glEvalCoord1dv(const u: PGLdouble); stdcall; external libGL;
   procedure glEvalCoord1f(u: GLfloat); stdcall; external libGL;
@@ -873,7 +879,7 @@ var
   procedure glFogi(pname: GLenum; param: GLint); stdcall; external libGL;
   procedure glFogiv(pname: GLenum; const params: PGLint); stdcall; external libGL;
 //  glFrustum: procedure(left, right, bottom, top, zNear, zFar: GLdouble); stdcall; external libGL;
-  function glGenLists(range: GLsizei): GLuint; stdcall; external libGL;
+//  glGenLists: function(range: GLsizei): GLuint; stdcall; external libGL;
   procedure glGetClipPlane(plane: GLenum; equation: PGLdouble); stdcall; external libGL;
 //  glGetLightfv: procedure(light, pname: GLenum; params: PGLfloat); stdcall; external libGL;
 //  glGetLightiv: procedure(light, pname: GLenum; params: PGLint); stdcall; external libGL;
@@ -905,7 +911,7 @@ var
   procedure glIndexubv(const c: PGLubyte); stdcall; external libGL;
   procedure glInitNames; stdcall; external libGL;
 //  glInterleavedArrays: procedure(format: GLenum; stride: GLsizei; const pointer: Pointer); stdcall; external libGL;
-  function glIsList(list: GLuint): GLboolean; stdcall; external libGL;
+//  glIsList: function(list: GLuint): GLboolean; stdcall; external libGL;
 //  glLightModelf: procedure(pname: GLenum; param: GLfloat); stdcall; external libGL;
 //  glLightModelfv: procedure(pname: GLenum; const params: PGLfloat); stdcall; external libGL;
   procedure glLightModeli(pname: GLenum; param: GLint); stdcall; external libGL;
@@ -915,7 +921,7 @@ var
   procedure glLighti(light, pname: GLenum; param: GLint); stdcall; external libGL;
   procedure glLightiv(light, pname: GLenum; const params: PGLint); stdcall; external libGL;
   procedure glLineStipple(factor: GLint; pattern: GLushort); stdcall; external libGL;
-  procedure glListBase(base: GLuint); stdcall; external libGL;
+//  glListBase: procedure(base: GLuint); stdcall; external libGL;
 //  glLoadIdentity: procedure; stdcall; external libGL;
   procedure glLoadMatrixd(const m: PGLdouble); stdcall; external libGL;
 //  glLoadMatrixf: procedure(const m: PGLfloat); stdcall; external libGL;
@@ -935,7 +941,7 @@ var
 //  glMatrixMode: procedure(mode: GLenum); stdcall; external libGL;
   procedure glMultMatrixd(const m: PGLdouble); stdcall; external libGL;
   procedure glMultMatrixf(const m: PGLfloat); stdcall; external libGL;
-  procedure glNewList(list: GLuint; mode: GLenum); stdcall; external libGL;
+//  glNewList: procedure(list: GLuint; mode: GLenum); stdcall; external libGL;
   procedure glNormal3b(nx, ny, nz: GLbyte); stdcall; external libGL;
   procedure glNormal3bv(const v: PGLbyte); stdcall; external libGL;
   procedure glNormal3d(nx, ny, nz: GLdouble); stdcall; external libGL;
@@ -1074,7 +1080,7 @@ var
   procedure glVertex4s(x, y, z, w: GLshort); stdcall; external libGL;
   procedure glVertex4sv(const v: PGLshort); stdcall; external libGL;
 //  glVertexPointer: procedure(size: GLint; atype: GLenum; stride: GLsizei; const pointer: Pointer); stdcall;
-{$EndIf}
+{$IfEnd}
 (*******************************************************************************
 *                            end deprecated                                    *
 *******************************************************************************)
@@ -5730,6 +5736,8 @@ begin
 end;
 
 function LoadOpenGL: Boolean;
+var
+  i, j: Integer;
 begin
 {  Result := False;
   if gl_Library <> Nil then
@@ -5775,8 +5783,8 @@ begin
 //  glArrayElement := gl_GetProc('glArrayElement');
 //  glBegin := gl_GetProc('glBegin');
   glBitmap := gl_GetProc('glBitmap');
-  glCallList := gl_GetProc('glCallList');
-  glCallLists := gl_GetProc('glCallLists');
+//  glCallList := gl_GetProc('glCallList');
+//  glCallLists := gl_GetProc('glCallLists');
   glClearAccum := gl_GetProc('glClearAccum');
   glClearIndex := gl_GetProc('glClearIndex');
   glClipPlane := gl_GetProc('glClipPlane');
@@ -5815,7 +5823,7 @@ begin
 //  glColorMaterial := gl_GetProc('glColorMaterial');
 //  glColorPointer := gl_GetProc('glColorPointer');
   glCopyPixels := gl_GetProc('glCopyPixels');
-  glDeleteLists := gl_GetProc('glDeleteLists');
+//  glDeleteLists := gl_GetProc('glDeleteLists');
 //  glDisableClientState := gl_GetProc('glDisableClientState');
   glDrawPixels := gl_GetProc('glDrawPixels');
   glEdgeFlag := gl_GetProc('glEdgeFlag');
@@ -5823,7 +5831,7 @@ begin
   glEdgeFlagv := gl_GetProc('glEdgeFlagv');
 //  glEnableClientState := gl_GetProc('glEnableClientState');
 //  glEnd := gl_GetProc('glEnd');
-  glEndList := gl_GetProc('glEndList');
+//  glEndList := gl_GetProc('glEndList');
   glEvalCoord1d := gl_GetProc('glEvalCoord1d');
   glEvalCoord1dv := gl_GetProc('glEvalCoord1dv');
   glEvalCoord1f := gl_GetProc('glEvalCoord1f');
@@ -5842,7 +5850,7 @@ begin
   glFogi := gl_GetProc('glFogi');
   glFogiv := gl_GetProc('glFogiv');
 //  glFrustum := gl_GetProc('glFrustum');
-  glGenLists := gl_GetProc('glGenLists');
+//  glGenLists := gl_GetProc('glGenLists');
   glGetClipPlane := gl_GetProc('glGetClipPlane');
 //  glGetLightfv := gl_GetProc('glGetLightfv');
 //  glGetLightiv := gl_GetProc('glGetLightiv');
@@ -5874,7 +5882,7 @@ begin
   glIndexubv := gl_GetProc('glIndexubv');
   glInitNames := gl_GetProc('glInitNames');
 //  glInterleavedArrays := gl_GetProc('glInterleavedArrays');
-  glIsList := gl_GetProc('glIsList');
+//  glIsList := gl_GetProc('glIsList');
 //  glLightModelf := gl_GetProc('glLightModelf');
 //  glLightModelfv := gl_GetProc('glLightModelfv');
   glLightModeli := gl_GetProc('glLightModeli');
@@ -5884,7 +5892,7 @@ begin
   glLighti := gl_GetProc('glLighti');
   glLightiv := gl_GetProc('glLightiv');
   glLineStipple := gl_GetProc('glLineStipple');
-  glListBase := gl_GetProc('glListBase');
+//  glListBase := gl_GetProc('glListBase');
 //  glLoadIdentity := gl_GetProc('glLoadIdentity');
   glLoadMatrixd := gl_GetProc('glLoadMatrixd');
 //  glLoadMatrixf := gl_GetProc('glLoadMatrixf');
@@ -5904,7 +5912,7 @@ begin
 //  glMatrixMode := gl_GetProc('glMatrixMode');
   glMultMatrixd := gl_GetProc('glMultMatrixd');
   glMultMatrixf := gl_GetProc('glMultMatrixf');
-  glNewList := gl_GetProc('glNewList');
+//  glNewList := gl_GetProc('glNewList');
   glNormal3b := gl_GetProc('glNormal3b');
   glNormal3bv := gl_GetProc('glNormal3bv');
   glNormal3d := gl_GetProc('glNormal3d');
